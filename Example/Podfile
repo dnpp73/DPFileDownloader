@@ -1,0 +1,25 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+MyTargets = [
+  {platform: :ios, os_version: '7.0',  name: 'Sample-iOS'},
+  {platform: :ios, os_version: '7.0',  name: 'Sample-iOS-Tests'},
+  {platform: :osx, os_version: '10.9', name: 'Sample-OSX'},
+  {platform: :osx, os_version: '10.9', name: 'Sample-OSX-Tests'},
+]
+MyPods = [
+  {name: 'DPUTIUtil'},
+]
+
+MyTargets.each do |t|
+  target t[:name], exclusive: false do
+    platform t[:platform], t[:os_version]
+    MyPods.each do |p|
+      next if p[:ios_only] && t[:platform] == :osx
+      if p[:path]
+        pod p[:name], path: p[:path]
+      else
+        pod p[:name]
+      end
+    end
+  end
+end

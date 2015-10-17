@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>name</key>
+		<string>GOM Sample mp4_h264_aac.mp4 (4.98 MB)</string>
+		<key>url</key>
+		<string>http://www.gomplayer.jp/img/sample/mp4_h264_aac.mp4</string>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>GOM Sample mp4_mpeg4_aac.mp4 (1.28 MB)</string>
+		<key>url</key>
+		<string>http://www.gomplayer.jp/img/sample/mp4_mpeg4_aac.mp4</string>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>GOM Sample mpeg2_mpeg2_ac3.mpg (11.0 MB)</string>
+		<key>url</key>
+		<string>http://www.gomplayer.jp/img/sample/mpeg2_mpeg2_ac3.mpg</string>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>GOM Sample mpeg2_mpeg2_lpcm.mpg (14.3 MB)</string>
+		<key>url</key>
+		<string>http://www.gomplayer.jp/img/sample/mpeg2_mpeg2_lpcm.mpg</string>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>sample-videos.com - 50 MB - mp4 - 1080x720</string>
+		<key>url</key>
+		<string>http://www.sample-videos.com/video/mp4/720/big_buck_bunny_720p_50mb.mp4</string>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>sample-videos.com - 50 MB - mp4 - 360x240</string>
+		<key>url</key>
+		<string>http://www.sample-videos.com/video/mp4/240/big_buck_bunny_240p_50mb.mp4</string>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>Swan Takes Flight</string>
+		<key>url</key>
+		<string>https://archive.org/download/SwansTakeFlight/SwansTakeFlight.mp4</string>
+		<key>original</key>
+		<string>http://www.mothernaturevideos.com/2015/05/06/swan-takes-flight/</string>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>Grass in the Wind</string>
+		<key>url</key>
+		<string>https://archive.org/download/GRassInTheWind720/GRassInThe%20Wind-720.mp4</string>
+		<key>original</key>
+		<string>http://www.mothernaturevideos.com/2015/01/31/grass-in-the-wind/</string>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>Spouting Horn</string>
+		<key>url</key>
+		<string>http://www.archive.org/download/SpoutingHorn/SpoutingHorn-720.mp4</string>
+		<key>original</key>
+		<string>http://www.mothernaturevideos.com/2009/09/04/spouting-horn/</string>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>Setting Sun</string>
+		<key>url</key>
+		<string>https://archive.org/download/SettingSun1080/SettingSun-1080.mp4</string>
+		<key>original</key>
+		<string>http://www.mothernaturevideos.com/2014/03/02/setting-sun/</string>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>Gathering of Geese</string>
+		<key>url</key>
+		<string>http://www.archive.org/download/GatheringOfGeese/GatheringOfGeese-1080.mp4</string>
+		<key>original</key>
+		<string>http://www.mothernaturevideos.com/2009/09/25/gathering-of-geese/</string>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>Leaf Shadow Timelapse</string>
+		<key>url</key>
+		<string>http://archive.org/download/LeafShadowsInTheForest-Timelapse/LeafShadowTimelapse.mp4</string>
+		<key>original</key>
+		<string>http://www.mothernaturevideos.com/2013/01/17/leaf-shadow-timelapse/</string>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>Sahalie Falls Rainbow</string>
+		<key>url</key>
+		<string>https://archive.org/compress/SahalieFallsRainbow/formats=MPEG4&amp;file=/SahalieFallsRainbow.zip</string>
+		<key>original</key>
+		<string>http://www.mothernaturevideos.com/2015/01/14/sahalie-falls-rainbow/</string>
+	</dict>
+</array>
+</plist>
