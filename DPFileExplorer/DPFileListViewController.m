@@ -2,7 +2,12 @@
 #import "DPFileListTableViewCell.h"
 
 
-@interface DPFileListViewController () <UIAlertViewDelegate, UIActionSheetDelegate, UIDocumentInteractionControllerDelegate>
+@interface DPFileListViewController ()
+<
+    UIAlertViewDelegate,
+    UIActionSheetDelegate,
+    UIDocumentInteractionControllerDelegate
+>
 {
     NSMutableArray*      _fileURLs;
     NSMutableDictionary* _fileWrappers;
@@ -126,10 +131,127 @@
 
 - (void)actionForMkdirBarButtonItem:(UIBarButtonItem*)barButtonItem
 {
-    UIAlertView* mkdirConfirm = [[UIAlertView alloc] initWithTitle:@"mkdir" message:@"enter new directory name." delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"mkdir", nil];
-    mkdirConfirm.alertViewStyle = UIAlertViewStylePlainTextInput;
-    _mkdirConfirm = mkdirConfirm;
-    [mkdirConfirm show];
+    [self showMkdirAlert];
+}
+
+#pragma mark - UIAlertView UIAlertController Util
+
+- (void)showAlertWithTitle:(NSString*)title
+                   message:(NSString*)message
+         cancelButtonTitle:(NSString*)cancelButtonTitle
+            okButtonTitile:(NSString*)okButtonTitle
+              useTextInput:(BOOL)useTextInput
+    initialTextInputString:(NSString*)initialTextInputString
+                 alertKind:(NSString*)alertKind
+                 indexPath:(NSIndexPath*)indexPath
+{
+    // iOS 7.x
+    if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_8_0) {
+        UIAlertView* alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:cancelButtonTitle otherButtonTitles:okButtonTitle, nil];
+        if (useTextInput) {
+            alert.alertViewStyle = UIAlertViewStylePlainTextInput;
+            if (initialTextInputString.length > 0) {
+                [alert textFieldAtIndex:0].text = initialTextInputString;
+            }
+        }
+        if (indexPath) {
+            alert.tag = indexPath.row;
+        }
+        if ([alertKind isEqualToString:@"mkdir"]) {
+            _mkdirConfirm = alert;
+        }
+        else if ([alertKind isEqualToString:@"delete"]) {
+            _deleteConfirm = alert;
+        }
+        else if ([alertKind isEqualToString:@"rename"]) {
+            _renameConfirm = alert;
+        }
+        [alert show];
+    }
+    // iOS 8.x
+    else {
+        UIAlertController* alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+        [alertController addAction:[UIAlertAction actionWithTitle:cancelButtonTitle style:UIAlertActionStyleCancel handler:^(UIAlertAction* action){
+            if ([alertKind isEqualToString:@"mkdir"]) {
+            }
+            else if ([alertKind isEqualToString:@"delete"]) {
+                [self canceledDeleteAlertWithIndexPath:indexPath];
+            }
+            else if ([alertKind isEqualToString:@"rename"]) {
+                [self canceledRenameAlertWithIndexPath:indexPath];
+            }
+        }]];
+        [alertController addAction:[UIAlertAction actionWithTitle:okButtonTitle style:UIAlertActionStyleDestructive handler:^(UIAlertAction* action){
+            if ([alertKind isEqualToString:@"mkdir"]) {
+                NSString* newDirectoryName = alertController.textFields[0].text;
+                [self pushedMkdirAlertButtonWithNewDirectoryName:newDirectoryName];
+            }
+            else if ([alertKind isEqualToString:@"delete"]) {
+                [self pushedDeleteAlertButtonWithIndexPath:indexPath];
+            }
+            else if ([alertKind isEqualToString:@"rename"]) {
+                NSString* newFileName = alertController.textFields[0].text;
+                [self pushedRenameAlertButtonWithIndexPath:indexPath newFileName:newFileName];
+            }
+        }]];
+        if (useTextInput) {
+            [alertController addTextFieldWithConfigurationHandler:^(UITextField* textField){
+                textField.text = initialTextInputString;
+            }];
+        }
+        [self presentViewController:alertController animated:YES completion:nil];
+    }
+}
+
+- (void)showMkdirAlert
+{
+    [self showAlertWithTitle:@"mkdir"
+                     message:@"enter new directory name."
+           cancelButtonTitle:@"Cancel"
+              okButtonTitile:@"mkdir"
+                useTextInput:YES
+      initialTextInputString:nil
+                   alertKind:@"mkdir"
+                   indexPath:nil];
+}
+
+- (void)showDeleteAlertWithIndexPath:(NSIndexPath*)indexPath
+{
+    [self showAlertWithTitle:@"Are you sure?"
+                     message:@"Delete file?"
+           cancelButtonTitle:@"Cancel"
+              okButtonTitile:@"Delete"
+                useTextInput:NO
+      initialTextInputString:nil
+                   alertKind:@"delete"
+                   indexPath:indexPath];
+}
+
+- (void)showRenameAlertWithIndexPath:(NSIndexPath*)indexPath
+{
+    NSURL*    fileURL = _fileURLs[indexPath.row];
+    NSString* initialTextInputString = fileURL.pathComponents.lastObject;
+    [self showAlertWithTitle:@"Rename"
+                     message:@"enter new file name."
+           cancelButtonTitle:@"Cancel"
+              okButtonTitile:@"Rename"
+                useTextInput:YES
+      initialTextInputString:initialTextInputString
+                   alertKind:@"rename"
+                   indexPath:indexPath];
+}
+
+- (void)showErrorAlertWithError:(NSError*)error
+{
+    NSLog(@"error\n%@", error);
+    [self showAlertWithTitle:@"Error!"
+                     message:error.localizedDescription
+           cancelButtonTitle:@"OK"
+              okButtonTitile:nil
+                useTextInput:NO
+      initialTextInputString:nil
+                   alertKind:nil
+                   indexPath:nil];
 }
 
 #pragma mark - Editing
@@ -178,10 +300,7 @@
 - (void)tableView:(UITableView*)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath*)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        UIAlertView* deleteConfirm = [[UIAlertView alloc] initWithTitle:@"Are you sure?" message:@"Delete file?" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Delete", nil];
-        deleteConfirm.tag = indexPath.row;
-        _deleteConfirm = deleteConfirm;
-        [deleteConfirm show];
+        [self showDeleteAlertWithIndexPath:indexPath];
     }
 }
 
@@ -190,9 +309,26 @@
 - (void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath
 {
     if (self.editing) {
-        UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:@"Choose Action" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Delete" otherButtonTitles:@"Rename", nil];
-        actionSheet.tag = indexPath.row;
-        [actionSheet showInView:self.view];
+        // iOS 7.x
+        if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_8_0) {
+            UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:@"Choose Action" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Delete" otherButtonTitles:@"Rename", nil];
+            actionSheet.tag = indexPath.row;
+            [actionSheet showInView:self.view];
+        }
+        // iOS 8.x
+        else {
+            UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Choose Action" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+            [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction* action){
+                [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+            }]];
+            [alertController addAction:[UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction* action){
+                [self showDeleteAlertWithIndexPath:indexPath];
+            }]];
+            [alertController addAction:[UIAlertAction actionWithTitle:@"Rename" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
+                [self showRenameAlertWithIndexPath:indexPath];
+            }]];
+            [self presentViewController:alertController animated:YES completion:nil];
+        }
     }
     else {
         NSURL* fileURL = _fileURLs[indexPath.row];
@@ -227,101 +363,116 @@
     }
 }
 
-#pragma mark - Show Error
+#pragma mark - Alert Execute
 
-- (void)showErrorAlertWithError:(NSError*)error
+- (void)pushedDeleteAlertButtonWithIndexPath:(NSIndexPath*)indexPath
 {
-    NSLog(@"error\n%@", error);
-    [[[UIAlertView alloc] initWithTitle:@"Error!" message:error.localizedDescription delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+    NSURL*   fileURL = _fileURLs[indexPath.row];
+    NSError* error;
+    [[NSFileManager defaultManager] removeItemAtURL:fileURL error:&error];
+    if (error) {
+        [self showErrorAlertWithError:error];
+        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    }
+    else {
+        [_fileURLs removeObject:fileURL];
+        [_fileWrappers removeObjectForKey:fileURL];
+        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+    }
+}
+
+- (void)canceledDeleteAlertWithIndexPath:(NSIndexPath*)indexPath
+{
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+- (void)pushedRenameAlertButtonWithIndexPath:(NSIndexPath*)indexPath newFileName:(NSString*)newFileName
+{
+    NSURL*    fileURL     = _fileURLs[indexPath.row];
+    NSString* newFilePath = [[fileURL.path stringByDeletingLastPathComponent] stringByAppendingPathComponent:newFileName];
+    NSURL*    newFileURL  = [NSURL fileURLWithPath:newFilePath];
+    NSError*  error;
+    [[NSFileManager defaultManager] moveItemAtURL:fileURL toURL:newFileURL error:&error];
+    if (error) {
+        [self showErrorAlertWithError:error];
+        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    }
+    else {
+        NSFileWrapper* newFw = [[NSFileWrapper alloc] initWithURL:newFileURL options:NSFileWrapperReadingWithoutMapping error:&error];
+        if (error) {
+            [self showErrorAlertWithError:error];
+            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+        }
+        if (newFw) {
+            [_fileURLs replaceObjectAtIndex:indexPath.row withObject:newFileURL];
+            [_fileWrappers removeObjectForKey:fileURL];
+            [_fileWrappers setObject:newFw forKey:newFileURL];
+            DPFileListTableViewCell* cell = (DPFileListTableViewCell*)[self.tableView cellForRowAtIndexPath:indexPath];
+            cell.fileWrapper = newFw;
+            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+        }
+    }
+}
+
+- (void)canceledRenameAlertWithIndexPath:(NSIndexPath*)indexPath
+{
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+- (void)pushedMkdirAlertButtonWithNewDirectoryName:(NSString*)newDirectoryName
+{
+    NSIndexPath* indexPath        = [NSIndexPath indexPathForRow:_fileURLs.count inSection:0];
+    NSString*    newDirectoryPath = [self.parentFileURL.path stringByAppendingPathComponent:newDirectoryName];
+    NSURL*       newDirectoryURL  = [NSURL fileURLWithPath:newDirectoryPath];
+    NSError*     error;
+    [[NSFileManager defaultManager] createDirectoryAtURL:newDirectoryURL withIntermediateDirectories:NO attributes:nil error:&error];
+    if (error) {
+        [self showErrorAlertWithError:error];
+    }
+    else {
+        NSFileWrapper* newFw = [[NSFileWrapper alloc] initWithURL:newDirectoryURL options:NSFileWrapperReadingWithoutMapping error:&error];
+        if (error) {
+            [self showErrorAlertWithError:error];
+        }
+        if (newFw) {
+            [_fileURLs addObject:newDirectoryURL];
+            [_fileWrappers setObject:newFw forKey:newDirectoryURL];
+            [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        }
+    }
 }
 
 #pragma mark - UIAlertViewDelegate
 
-- (void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+- (void)alertView:(UIAlertView*)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     NSIndexPath* indexPath = [NSIndexPath indexPathForRow:alertView.tag inSection:0];
-    
     // Delete
     if (alertView == _deleteConfirm) {
         if (buttonIndex == 1) {
-            NSURL* fileURL = _fileURLs[indexPath.row];
-            NSError* error;
-            [[NSFileManager defaultManager] removeItemAtURL:fileURL error:&error];
-            if (error) {
-                [self showErrorAlertWithError:error];
-                [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-            }
-            else {
-                [_fileURLs removeObject:fileURL];
-                [_fileWrappers removeObjectForKey:fileURL];
-                [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-            }
+            [self pushedDeleteAlertButtonWithIndexPath:indexPath];
         }
         else {
-            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+            [self canceledDeleteAlertWithIndexPath:indexPath];
         }
     }
-    
     // Rename
     else if (alertView == _renameConfirm) {
         if (buttonIndex == 1) {
-            NSURL* fileURL = _fileURLs[indexPath.row];
             NSString* newFileName = [alertView textFieldAtIndex:0].text;
-            NSString* newFilePath = [[fileURL.path stringByDeletingLastPathComponent] stringByAppendingPathComponent:newFileName];
-            NSURL*    newFileURL  = [NSURL fileURLWithPath:newFilePath];
-            NSError* error;
-            [[NSFileManager defaultManager] moveItemAtURL:fileURL toURL:newFileURL error:&error];
-            if (error) {
-                [self showErrorAlertWithError:error];
-                [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-            }
-            else {
-                NSFileWrapper* newFw = [[NSFileWrapper alloc] initWithURL:newFileURL options:NSFileWrapperReadingWithoutMapping error:&error];
-                if (error) {
-                    [self showErrorAlertWithError:error];
-                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-                }
-                if (newFw) {
-                    [_fileURLs replaceObjectAtIndex:indexPath.row withObject:newFileURL];
-                    [_fileWrappers removeObjectForKey:fileURL];
-                    [_fileWrappers setObject:newFw forKey:newFileURL];
-                    DPFileListTableViewCell* cell = (DPFileListTableViewCell*)[self.tableView cellForRowAtIndexPath:indexPath];
-                    cell.fileWrapper = newFw;
-                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-                }
-            }
+            [self pushedRenameAlertButtonWithIndexPath:indexPath newFileName:newFileName];
         }
         else {
-            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+            [self canceledRenameAlertWithIndexPath:indexPath];
         }
     }
-    
     // mkdir
     else if (alertView == _mkdirConfirm) {
         if (buttonIndex == 1) {
-            indexPath = [NSIndexPath indexPathForRow:_fileURLs.count inSection:0];
             NSString* newDirectoryName = [alertView textFieldAtIndex:0].text;
-            NSString* newDirectoryPath = [self.parentFileURL.path stringByAppendingPathComponent:newDirectoryName];
-            NSURL*    newDirectoryURL  = [NSURL fileURLWithPath:newDirectoryPath];
-            NSError* error;
-            [[NSFileManager defaultManager] createDirectoryAtURL:newDirectoryURL withIntermediateDirectories:NO attributes:nil error:&error];
-            if (error) {
-                [self showErrorAlertWithError:error];
-            }
-            else {
-                NSFileWrapper* newFw = [[NSFileWrapper alloc] initWithURL:newDirectoryURL options:NSFileWrapperReadingWithoutMapping error:&error];
-                if (error) {
-                    [self showErrorAlertWithError:error];
-                }
-                if (newFw) {
-                    [_fileURLs addObject:newDirectoryURL];
-                    [_fileWrappers setObject:newFw forKey:newDirectoryURL];
-                    [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                }
-            }
+            [self pushedMkdirAlertButtonWithNewDirectoryName:newDirectoryName];
         }
     }
-    
     // Undefined
     else {
         [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -330,29 +481,17 @@
 
 #pragma mark - UIActionSheetDelegate
 
-- (void)actionSheet:(UIActionSheet*)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+- (void)actionSheet:(UIActionSheet*)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     NSIndexPath* indexPath = [NSIndexPath indexPathForRow:actionSheet.tag inSection:0];
-    
     // Delete
     if (buttonIndex == 0) {
-        UIAlertView* deleteConfirm = [[UIAlertView alloc] initWithTitle:@"Are you sure?" message:@"Delete file?" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Delete", nil];
-        deleteConfirm.tag = indexPath.row;
-        _deleteConfirm = deleteConfirm;
-        [deleteConfirm show];
+        [self showDeleteAlertWithIndexPath:indexPath];
     }
-    
     // Rename
     else if (buttonIndex == 1) {
-        UIAlertView* renameConfirm = [[UIAlertView alloc] initWithTitle:@"Rename" message:@"enter new file name." delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Rename", nil];
-        renameConfirm.tag = indexPath.row;
-        renameConfirm.alertViewStyle = UIAlertViewStylePlainTextInput;
-        NSURL* fileURL = _fileURLs[indexPath.row];
-        [renameConfirm textFieldAtIndex:0].text = fileURL.pathComponents.lastObject;
-        _renameConfirm = renameConfirm;
-        [renameConfirm show];
+        [self showRenameAlertWithIndexPath:indexPath];
     }
-    
     // Undefined
     else {
         [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
