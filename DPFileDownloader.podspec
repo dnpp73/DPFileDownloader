@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name                  = "DPFileDownloader"
   s.version               = "1.0.1"
-  s.summary               = "NSURLSession wrapper. Background downloader."
+  s.summary               = "iOS 7-9, OSX 10.9-10.11 Compatible NSURLSession File Downloader"
   s.author                = { "Yusuke SUGAMIYA" => "yusuke.dnpp@gmail.com" }
   s.homepage              = "https://github.com/dnpp73/DPFileDownloader"
   s.source                = { :git => "https://github.com/dnpp73/DPFileDownloader.git", :tag => "#{s.version}" }
