@@ -2,9 +2,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 MyTargets = [
   {platform: :ios, os_version: '7.0',  name: 'Sample-iOS'},
-  {platform: :ios, os_version: '7.0',  name: 'Sample-iOS-Tests'},
   {platform: :osx, os_version: '10.9', name: 'Sample-OSX'},
-  {platform: :osx, os_version: '10.9', name: 'Sample-OSX-Tests'},
 ]
 MyPods = [
   {name: 'DPUTIUtil'},
