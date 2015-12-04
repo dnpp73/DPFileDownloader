@@ -58,7 +58,9 @@ NSString* const DPFileListTableViewCellIdentifier = @"DPFileListTableViewCellIde
 
 + (UINib*)nibForRegisterTableView
 {
-    return [UINib nibWithNibName:NSStringFromClass([self class]) bundle:[NSBundle mainBundle]];
+    NSString* nibName = NSStringFromClass([self class]);
+    NSBundle* bundle  = [NSBundle bundleForClass:[self class]];
+    return [UINib nibWithNibName:nibName bundle:bundle];
 }
 
 + (NSDateFormatter*)dateFormatter

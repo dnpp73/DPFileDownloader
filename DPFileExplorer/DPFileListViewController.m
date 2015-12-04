@@ -341,7 +341,9 @@
                 [tableView deselectRowAtIndexPath:indexPath animated:YES];
             }
             else {
-                typeof(self) vc = [[[self class] alloc] initWithNibName:nil bundle:nil];
+                NSString* nibName = NSStringFromClass([self class]);
+                NSBundle* bundle  = [NSBundle bundleForClass:[self class]];
+                typeof(self) vc = [[[self class] alloc] initWithNibName:nibName bundle:bundle];
                 vc.fileURLs = fileURLs;
                 vc.parentFileURL = fileURL;
                 vc.title = fw.filename;
@@ -603,7 +605,9 @@
 
 + (instancetype)rootFileListViewController
 {
-    DPFileListViewController* rootFileListViewController = [[self alloc] initWithNibName:NSStringFromClass([self class]) bundle:[NSBundle mainBundle]];
+    NSString* nibName = NSStringFromClass([self class]);
+    NSBundle* bundle  = [NSBundle bundleForClass:[self class]];
+    DPFileListViewController* rootFileListViewController = [[self alloc] initWithNibName:nibName bundle:bundle];
     rootFileListViewController.fileURLs = [self rootFileURLs];
     rootFileListViewController.title = @"Root";
     return rootFileListViewController;

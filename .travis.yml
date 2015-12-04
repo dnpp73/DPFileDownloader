@@ -1,16 +1,22 @@
 language: objective-c
-
-osx_image: xcode7
+osx_image: xcode7.1
+xcode_workspace: DPFileDownloader.xcworkspace
 
 cache:
   directories:
     - $HOME/.cocoapods
 
 before_install:
-  - gem install cocoapods --no-ri --no-rdoc
-
-before_script:
+  - gem install cocoapods xcpretty --no-ri --no-rdoc
   - pod setup > /dev/null 2>&1
+  - brew update
+  - brew install carthage
+  - carthage bootstrap --use-submodules --no-use-binaries --no-build
+  - set -o pipefail
+  - xcodebuild clean -workspace DPFileDownloader.xcworkspace -scheme DPFileDownloader-iOS -configuration Release -sdk iphonesimulator | xcpretty -c
+  - xcodebuild clean -workspace DPFileDownloader.xcworkspace -scheme DPFileDownloader-OSX -configuration Release -sdk macosx | xcpretty -c
 
 script:
   - pod lib lint --sources='https://github.com/CocoaPods/Specs'
+  - xcodebuild -workspace DPFileDownloader.xcworkspace -scheme DPFileDownloader-iOS -configuration Release -sdk iphonesimulator | xcpretty -c
+  - xcodebuild -workspace DPFileDownloader.xcworkspace -scheme DPFileDownloader-OSX -configuration Release -sdk macosx | xcpretty -c

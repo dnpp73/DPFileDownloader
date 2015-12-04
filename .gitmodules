@@ -1,0 +1,3 @@
+[submodule "Carthage/Checkouts/DPUTIUtil"]
+	path = Carthage/Checkouts/DPUTIUtil
+	url = https://github.com/dnpp73/DPUTIUtil.git

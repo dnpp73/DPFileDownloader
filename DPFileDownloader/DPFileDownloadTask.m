@@ -1,6 +1,6 @@
 #import "DPFileDownloadTask.h"
 #import "DPFileDownloadTask_Private.h"
-#import "DPUTIUtil.h"
+#import <DPUTIUtil/DPUTIUtil.h>
 
 
 @interface DPFileDownloadTask ()

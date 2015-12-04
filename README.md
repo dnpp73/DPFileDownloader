@@ -5,6 +5,7 @@ DPFileDownloader
 [![Pod Version](http://img.shields.io/cocoapods/v/DPFileDownloader.svg?style=flat-square)](http://cocoadocs.org/docsets/DPFileDownloader/)
 [![Pod Platform](http://img.shields.io/cocoapods/p/DPFileDownloader.svg?style=flat-square)](http://cocoadocs.org/docsets/DPFileDownloader/)
 [![Pod License](http://img.shields.io/cocoapods/l/DPFileDownloader.svg?style=flat-square)](http://opensource.org/licenses/MIT)
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat-square)](https://github.com/Carthage/Carthage)
 
 ### Dependency
 * [`DPUTIUtil`](https://github.com/dnpp73/DPUTIUtil)
